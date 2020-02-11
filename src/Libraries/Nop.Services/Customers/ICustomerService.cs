@@ -314,6 +314,14 @@ namespace Nop.Services.Customers
         bool IsInCustomerRole(Customer customer, string customerRoleSystemName, bool onlyActiveCustomerRoles = true);
 
         /// <summary>
+        /// Gets a value indicating whether customer is super administrator
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles</param>
+        /// <returns>Result</returns>
+        bool IsSuperAdmin(Customer customer, bool onlyActiveCustomerRoles = true);
+
+        /// <summary>
         /// Gets a value indicating whether customer is administrator
         /// </summary>
         /// <param name="customer">Customer</param>

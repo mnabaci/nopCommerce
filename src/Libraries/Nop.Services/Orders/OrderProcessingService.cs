@@ -1194,7 +1194,7 @@ namespace Nop.Services.Orders
                 return;
 
             var customer = _customerService.GetCustomerById(order.CustomerId);
-            
+
             foreach (var customerRole in customerRoles)
             {
                 if (!_customerService.IsInCustomerRole(customer, customerRole.SystemName))
@@ -2105,7 +2105,7 @@ namespace Nop.Services.Orders
             if (initialOrder.OrderStatus == OrderStatus.Cancelled)
                 return false;
 
-            if (!_customerService.IsAdmin(customerToValidate))
+            if (!_customerService.IsAdmin(customerToValidate) && !_customerService.IsSuperAdmin(customerToValidate))
             {
                 if (customer.Id != customerToValidate.Id)
                     return false;
@@ -2134,14 +2134,14 @@ namespace Nop.Services.Orders
                 return false;
 
             var orderCustomer = _customerService.GetCustomerById(order.CustomerId);
-            
+
             if (order.OrderStatus == OrderStatus.Cancelled)
                 return false;
 
             if (!recurringPayment.LastPaymentFailed || _paymentService.GetRecurringPaymentType(order.PaymentMethodSystemName) != RecurringPaymentType.Manual)
                 return false;
 
-            if (orderCustomer == null || (!_customerService.IsAdmin(customer) && orderCustomer.Id != customer.Id))
+            if (orderCustomer == null || ((!_customerService.IsAdmin(customer) && !_customerService.IsSuperAdmin(customer)) && orderCustomer.Id != customer.Id))
                 return false;
 
             return true;
@@ -2363,8 +2363,8 @@ namespace Nop.Services.Orders
 
             //check order status
             CheckOrderStatus(order);
-        
-            _eventPublisher.Publish(new OrderAuthorizedEvent(order)); 
+
+            _eventPublisher.Publish(new OrderAuthorizedEvent(order));
         }
 
         /// <summary>

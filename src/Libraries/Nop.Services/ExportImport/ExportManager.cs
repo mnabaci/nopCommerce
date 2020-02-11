@@ -1614,6 +1614,7 @@ namespace Nop.Services.ExportImport
                 new PropertyByName<Customer>("Active", p => p.Active),
                 new PropertyByName<Customer>("IsGuest", p => _customerService.IsGuest(p)),
                 new PropertyByName<Customer>("IsRegistered", p => _customerService.IsRegistered(p)),
+                new PropertyByName<Customer>("IsSuperAdministrator", p => _customerService.IsSuperAdmin(p)),
                 new PropertyByName<Customer>("IsAdministrator", p => _customerService.IsAdmin(p)),
                 new PropertyByName<Customer>("IsForumModerator", p => _customerService.IsForumModerator(p)),
                 new PropertyByName<Customer>("CreatedOnUtc", p => p.CreatedOnUtc),
@@ -1677,6 +1678,7 @@ namespace Nop.Services.ExportImport
 
                 xmlWriter.WriteElementString("IsGuest", null, _customerService.IsGuest(customer).ToString());
                 xmlWriter.WriteElementString("IsRegistered", null, _customerService.IsRegistered(customer).ToString());
+                xmlWriter.WriteElementString("IsSuperAdministrator", null, _customerService.IsSuperAdmin(customer).ToString());
                 xmlWriter.WriteElementString("IsAdministrator", null, _customerService.IsAdmin(customer).ToString());
                 xmlWriter.WriteElementString("IsForumModerator", null, _customerService.IsForumModerator(customer).ToString());
                 xmlWriter.WriteElementString("CreatedOnUtc", null, customer.CreatedOnUtc.ToString(CultureInfo.InvariantCulture));

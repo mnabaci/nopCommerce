@@ -1148,6 +1148,18 @@ namespace Nop.Services.Customers
             return customerRoles.Any(cr => cr.SystemName == customerRoleSystemName);
         }
 
+
+        /// <summary>
+        /// Gets a value indicating whether customer is super administrator
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles</param>
+        /// <returns>Result</returns>
+        public virtual bool IsSuperAdmin(Customer customer, bool onlyActiveCustomerRoles = true)
+        {
+            return IsInCustomerRole(customer, NopCustomerDefaults.SuperAdministratorsRoleName, onlyActiveCustomerRoles);
+        }
+
         /// <summary>
         /// Gets a value indicating whether customer is administrator
         /// </summary>

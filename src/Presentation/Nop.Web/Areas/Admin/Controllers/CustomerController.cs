@@ -253,6 +253,13 @@ namespace Nop.Web.Areas.Admin.Controllers
             return attributesXml;
         }
 
+        private bool SecondSuperAdminAccountExists(Customer customer)
+        {
+            var customers = _customerService.GetAllCustomers(customerRoleIds: new[] { _customerService.GetCustomerRoleBySystemName(NopCustomerDefaults.SuperAdministratorsRoleName).Id });
+
+            return customers.Any(c => c.Active && c.Id != customer.Id);
+        }
+
         private bool SecondAdminAccountExists(Customer customer)
         {
             var customers = _customerService.GetAllCustomers(customerRoleIds: new[] { _customerService.GetCustomerRoleBySystemName(NopCustomerDefaults.AdministratorsRoleName).Id });
@@ -448,13 +455,27 @@ namespace Nop.Web.Areas.Admin.Controllers
                 foreach (var customerRole in newCustomerRoles)
                 {
                     //ensure that the current customer cannot add to "Administrators" system role if he's not an admin himself
-                    if (customerRole.SystemName == NopCustomerDefaults.AdministratorsRoleName && !_customerService.IsAdmin(_workContext.CurrentCustomer))
+                    if (customerRole.SystemName == NopCustomerDefaults.SuperAdministratorsRoleName && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer))
+                        continue;
+
+                    //ensure that the current customer cannot add to "Administrators" system role if he's not an admin himself
+                    if (customerRole.SystemName == NopCustomerDefaults.AdministratorsRoleName && (!_customerService.IsAdmin(_workContext.CurrentCustomer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer)))
                         continue;
 
                     _customerService.AddCustomerRoleMapping(new CustomerCustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = customerRole.Id });
                 }
 
                 _customerService.UpdateCustomer(customer);
+
+                //ensure that a customer with a vendor associated is not in "SuperAdministrators" role
+                //otherwise, he won't have access to other functionality in admin area
+                if (_customerService.IsSuperAdmin(customer) && customer.VendorId > 0)
+                {
+                    customer.VendorId = 0;
+                    _customerService.UpdateCustomer(customer);
+
+                    _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.SuperAdminCouldNotbeVendor"));
+                }
 
                 //ensure that a customer with a vendor associated is not in "Administrators" role
                 //otherwise, he won't have access to other functionality in admin area
@@ -562,6 +583,12 @@ namespace Nop.Web.Areas.Admin.Controllers
                 {
                     customer.AdminComment = model.AdminComment;
                     customer.IsTaxExempt = model.IsTaxExempt;
+
+                    //prevent deactivation of the last active administrator
+                    if (!_customerService.IsSuperAdmin(customer) || model.Active || SecondSuperAdminAccountExists(customer))
+                        customer.Active = model.Active;
+                    else
+                        _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.SuperAdminAccountShouldExists.Deactivate"));
 
                     //prevent deactivation of the last active administrator
                     if (!_customerService.IsAdmin(customer) || model.Active || SecondAdminAccountExists(customer))
@@ -682,10 +709,14 @@ namespace Nop.Web.Areas.Admin.Controllers
                     //customer roles
                     foreach (var customerRole in allCustomerRoles)
                     {
+                        //ensure that the current customer cannot add/remove to/from "Super Administrators" system role
+                        //if he's not an admin himself
+                        if (customerRole.SystemName == NopCustomerDefaults.SuperAdministratorsRoleName && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer))
+                            continue;
+
                         //ensure that the current customer cannot add/remove to/from "Administrators" system role
                         //if he's not an admin himself
-                        if (customerRole.SystemName == NopCustomerDefaults.AdministratorsRoleName &&
-                            !_customerService.IsAdmin(_workContext.CurrentCustomer))
+                        if (customerRole.SystemName == NopCustomerDefaults.AdministratorsRoleName && (!_customerService.IsAdmin(_workContext.CurrentCustomer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer)))
                             continue;
 
                         if (model.SelectedCustomerRoleIds.Contains(customerRole.Id))
@@ -696,6 +727,13 @@ namespace Nop.Web.Areas.Admin.Controllers
                         }
                         else
                         {
+                            //prevent attempts to delete the super administrator role from the user, if the user is the last active super administrator
+                            if (customerRole.SystemName == NopCustomerDefaults.SuperAdministratorsRoleName && !SecondSuperAdminAccountExists(customer))
+                            {
+                                _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.SuperAdminAccountShouldExists.DeleteRole"));
+                                continue;
+                            }
+
                             //prevent attempts to delete the administrator role from the user, if the user is the last active administrator
                             if (customerRole.SystemName == NopCustomerDefaults.AdministratorsRoleName && !SecondAdminAccountExists(customer))
                             {
@@ -712,6 +750,15 @@ namespace Nop.Web.Areas.Admin.Controllers
                     }
 
                     _customerService.UpdateCustomer(customer);
+
+                    //ensure that a customer with a vendor associated is not in "Super Administrators" role
+                    //otherwise, he won't have access to the other functionality in admin area
+                    if (_customerService.IsSuperAdmin(customer) && customer.VendorId > 0)
+                    {
+                        customer.VendorId = 0;
+                        _customerService.UpdateCustomer(customer);
+                        _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.SuperAdminCouldNotbeVendor"));
+                    }
 
                     //ensure that a customer with a vendor associated is not in "Administrators" role
                     //otherwise, he won't have access to the other functionality in admin area
@@ -768,8 +815,15 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (customer == null)
                 return RedirectToAction("List");
 
-            //ensure that the current customer cannot change passwords of "Administrators" if he's not an admin himself
-            if (_customerService.IsAdmin(customer) && !_customerService.IsAdmin(_workContext.CurrentCustomer))
+            //ensure that the current customer cannot change passwords of "SuperAdministrators" if he's not an super admin himself
+            if (_customerService.IsSuperAdmin(customer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer))
+            {
+                _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.OnlySuperAdminCanChangePassword"));
+                return RedirectToAction("Edit", new { id = customer.Id });
+            }
+
+            //ensure that the current customer cannot change passwords of "Administrators" if he's not an admin or super admin himself
+            if (_customerService.IsAdmin(customer) && (!_customerService.IsAdmin(_workContext.CurrentCustomer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer)))
             {
                 _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.OnlyAdminCanChangePassword"));
                 return RedirectToAction("Edit", new { id = customer.Id });
@@ -859,6 +913,13 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             try
             {
+                //prevent attempts to delete the user, if it is the last active super administrator
+                if (_customerService.IsSuperAdmin(customer) && !SecondSuperAdminAccountExists(customer))
+                {
+                    _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.SuperAdminAccountShouldExists.DeleteAdministrator"));
+                    return RedirectToAction("Edit", new { id = customer.Id });
+                }
+
                 //prevent attempts to delete the user, if it is the last active administrator
                 if (_customerService.IsAdmin(customer) && !SecondAdminAccountExists(customer))
                 {
@@ -866,8 +927,15 @@ namespace Nop.Web.Areas.Admin.Controllers
                     return RedirectToAction("Edit", new { id = customer.Id });
                 }
 
-                //ensure that the current customer cannot delete "Administrators" if he's not an admin himself
-                if (_customerService.IsAdmin(customer) && !_customerService.IsAdmin(_workContext.CurrentCustomer))
+                //ensure that the current customer cannot delete "Super Administrators" if he's not a super admin himself
+                if (_customerService.IsSuperAdmin(customer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer))
+                {
+                    _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.OnlySuperAdminCanDeleteSuperAdmin"));
+                    return RedirectToAction("Edit", new { id = customer.Id });
+                }
+
+                //ensure that the current customer cannot delete "Administrators" if he's not an admin or super admin himself
+                if (_customerService.IsAdmin(customer) && (!_customerService.IsAdmin(_workContext.CurrentCustomer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer)))
                 {
                     _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.OnlyAdminCanDeleteAdmin"));
                     return RedirectToAction("Edit", new { id = customer.Id });
@@ -918,9 +986,17 @@ namespace Nop.Web.Areas.Admin.Controllers
                 return RedirectToAction("Edit", customer.Id);
             }
 
+            //ensure that a non-admin user cannot impersonate as a super administrator
+            //otherwise, that user can simply impersonate as a super administrator and gain additional administrative privileges
+            if (!_customerService.IsSuperAdmin(_workContext.CurrentCustomer) && _customerService.IsSuperAdmin(customer))
+            {
+                _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.NonSuperAdminNotImpersonateAsAdminError"));
+                return RedirectToAction("Edit", customer.Id);
+            }
+
             //ensure that a non-admin user cannot impersonate as an administrator
             //otherwise, that user can simply impersonate as an administrator and gain additional administrative privileges
-            if (!_customerService.IsAdmin(_workContext.CurrentCustomer) && _customerService.IsAdmin(customer))
+            if ((!_customerService.IsAdmin(_workContext.CurrentCustomer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer)) && _customerService.IsAdmin(customer))
             {
                 _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.NonAdminNotImpersonateAsAdminError"));
                 return RedirectToAction("Edit", customer.Id);
@@ -1164,7 +1240,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ?? throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
             //try to get an address with the specified id
-            var address = _customerService.GetCustomerAddress(customer.Id, id);            
+            var address = _customerService.GetCustomerAddress(customer.Id, id);
 
             if (address == null)
                 return Content("No address found with the specified id");
@@ -1515,6 +1591,13 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             try
             {
+                //prevent attempts to delete the user, if it is the last active super administrator
+                if (_customerService.IsSuperAdmin(customer) && !SecondSuperAdminAccountExists(customer))
+                {
+                    _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.SuperAdminAccountShouldExists.DeleteAdministrator"));
+                    return RedirectToAction("Edit", new { id = customer.Id });
+                }
+
                 //prevent attempts to delete the user, if it is the last active administrator
                 if (_customerService.IsAdmin(customer) && !SecondAdminAccountExists(customer))
                 {
@@ -1522,8 +1605,15 @@ namespace Nop.Web.Areas.Admin.Controllers
                     return RedirectToAction("Edit", new { id = customer.Id });
                 }
 
-                //ensure that the current customer cannot delete "Administrators" if he's not an admin himself
-                if (_customerService.IsAdmin(customer) && !_customerService.IsAdmin(_workContext.CurrentCustomer))
+                //ensure that the current customer cannot delete "Super Administrators" if he's not an admin himself
+                if (_customerService.IsSuperAdmin(customer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer))
+                {
+                    _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.OnlySuperAdminCanDeleteAdmin"));
+                    return RedirectToAction("Edit", new { id = customer.Id });
+                }
+
+                //ensure that the current customer cannot delete "Administrators" if he's not an admin or a super admin himself
+                if (_customerService.IsAdmin(customer) && (!_customerService.IsAdmin(_workContext.CurrentCustomer) && !_customerService.IsSuperAdmin(_workContext.CurrentCustomer)))
                 {
                     _notificationService.ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.OnlyAdminCanDeleteAdmin"));
                     return RedirectToAction("Edit", new { id = customer.Id });

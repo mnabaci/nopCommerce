@@ -131,9 +131,8 @@ namespace Nop.Services.Security
         public virtual HashSet<(string systemRoleName, PermissionRecord[] permissions)> GetDefaultPermissions()
         {
             return new HashSet<(string, PermissionRecord[])>
-            {
-                (
-                    NopCustomerDefaults.AdministratorsRoleName,
+            {(
+                    NopCustomerDefaults.SuperAdministratorsRoleName,
                     new[]
                     {
                         AccessAdminPanel,
@@ -181,6 +180,56 @@ namespace Nop.Services.Security
                         ManageMaintenance,
                         HtmlEditorManagePictures,
                         ManageScheduleTasks,
+                        DisplayPrices,
+                        EnableShoppingCart,
+                        EnableWishlist,
+                        PublicStoreAllowNavigation,
+                        AccessClosedStore
+                    }
+                ),
+                (
+                    NopCustomerDefaults.AdministratorsRoleName,
+                    new[]
+                    {
+                        AccessAdminPanel,
+                        AllowCustomerImpersonation,
+                        ManageProducts,
+                        ManageCategories,
+                        ManageManufacturers,
+                        ManageProductReviews,
+                        ManageProductTags,
+                        ManageAttributes,
+                        ManageCustomers,
+                        ManageVendors,
+                        ManageCurrentCarts,
+                        ManageOrders,
+                        ManageRecurringPayments,
+                        ManageGiftCards,
+                        ManageReturnRequests,
+                        OrderCountryReport,
+                        ManageAffiliates,
+                        ManageCampaigns,
+                        ManageDiscounts,
+                        ManageNewsletterSubscribers,
+                        ManagePolls,
+                        ManageNews,
+                        ManageBlog,
+                        ManageWidgets,
+                        ManageTopics,
+                        ManageForums,
+                        ManageMessageTemplates,
+                        ManageCountries,
+                        ManageLanguages,
+                        ManageSettings,
+                        ManagePaymentMethods,
+                        ManageExternalAuthenticationMethods,
+                        ManageTaxSettings,
+                        ManageShippingSettings,
+                        ManageCurrencies,
+                        ManageStores,
+                        ManageMessageQueue,
+                        ManageMaintenance,
+                        HtmlEditorManagePictures,
                         DisplayPrices,
                         EnableShoppingCart,
                         EnableWishlist,

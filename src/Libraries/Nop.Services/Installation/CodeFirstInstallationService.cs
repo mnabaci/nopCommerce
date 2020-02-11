@@ -4472,6 +4472,13 @@ namespace Nop.Services.Installation
 
         protected virtual void InstallCustomersAndUsers(string defaultUserEmail, string defaultUserPassword)
         {
+            var crSuperAdministrators = new CustomerRole
+            {
+                Name = "Super Administrators",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = NopCustomerDefaults.SuperAdministratorsRoleName
+            };
             var crAdministrators = new CustomerRole
             {
                 Name = "Administrators",
@@ -4509,6 +4516,7 @@ namespace Nop.Services.Installation
             };
             var customerRoles = new List<CustomerRole>
             {
+                crSuperAdministrators,
                 crAdministrators,
                 crForumModerators,
                 crRegistered,
@@ -4563,6 +4571,7 @@ namespace Nop.Services.Installation
             InsertInstallationData(new CustomerAddressMapping { CustomerId = adminUser.Id, AddressId = defaultAdminUserAddress.Id });
 
             InsertInstallationData(
+                new CustomerCustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = crSuperAdministrators.Id },
                 new CustomerCustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = crAdministrators.Id },
                 new CustomerCustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = crForumModerators.Id },
                 new CustomerCustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = crRegistered.Id });

@@ -10323,14 +10323,26 @@
   <LocaleResource Name="Admin.Customers.Customers.Addresses.Updated">
     <Value>The address has been updated successfully.</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.SuperAdminAccountShouldExists.Deactivate">
+    <Value>You can't deactivate the last super administrator. At least one super administrator account should exists.</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.AdminAccountShouldExists.Deactivate">
     <Value>You can't deactivate the last administrator. At least one administrator account should exists.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.SuperAdminAccountShouldExists.DeleteAdministrator">
+    <Value>You can't delete the last super administrator. At least one super administrator account should exists.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.AdminAccountShouldExists.DeleteAdministrator">
     <Value>You can't delete the last administrator. At least one administrator account should exists.</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.SuperAdminAccountShouldExists.DeleteRole">
+    <Value>You can't remove the Super Administrator role. At least one super administrator account should exists.</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.AdminAccountShouldExists.DeleteRole">
     <Value>You can't remove the Administrator role. At least one administrator account should exists.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.SuperAdminCouldNotbeVendor">
+    <Value>A customer with a vendor associated could not be in "Super Administrators" role.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.AdminCouldNotbeVendor">
     <Value>A customer with a vendor associated could not be in "Administrators" role.</Value>
@@ -10734,14 +10746,23 @@
   <LocaleResource Name="Admin.Customers.Customers.List.SearchZipCode.Hint">
     <Value>Search by zip code.</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.NonSuperAdminNotImpersonateAsAdminError">
+    <Value>A non-admin user cannot impersonate as a super administrator</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.NonAdminNotImpersonateAsAdminError">
     <Value>A non-admin user cannot impersonate as an administrator</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.OnlySuperAdminCanChangePassword">
+    <Value>You're not allowed to change passwords of super administrators. Only super administrators can do it.</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.OnlyAdminCanChangePassword">
-    <Value>You're not allowed to change passwords of administrators. Only administrators can do it.</Value>
+    <Value>You're not allowed to change passwords of administrators. Only administrators and super administrators can do it.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.OnlySuperAdminCanDeleteAdmin">
+    <Value>You're not allowed to delete super administrators. Only super administrators can do it.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.OnlyAdminCanDeleteAdmin">
-    <Value>You're not allowed to delete administrators. Only administrators can do it.</Value>
+    <Value>You're not allowed to delete administrators. Only administrators or super administrators can do it.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Orders">
     <Value>Orders</Value>
@@ -12266,7 +12287,7 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Plugins.Errors.InstallDependsOn">
     <Value>The "{0}" plugin depends on the following plugins which must be installed beforehand: "{1}"</Value>
-  </LocaleResource>  
+  </LocaleResource>
   <LocaleResource Name="Admin.Plugins.Errors.NotDeleted">
     <Value>The plugin "{0}" not deleted</Value>
   </LocaleResource>
@@ -12476,7 +12497,7 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.Discount">
     <Value>Discount</Value>
-  </LocaleResource>  
+  </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.DiscountAmount">
     <Value>Discount amount</Value>
   </LocaleResource>
@@ -13994,16 +14015,16 @@
   </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.AzureBlobStorageEnabled">
     <Value>Azure Blob Storage enabled</Value>
-  </LocaleResource>  
+  </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.AzureBlobStorageEnabled.Hint">
     <Value>Indicates whether Azure Blob Storage is enabled.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.CurrentStaticCacheManager">
     <Value>Static cache manager name</Value>
-  </LocaleResource>  
+  </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.CurrentStaticCacheManager.Hint">
     <Value>Indicating the current static cache manager name.</Value>
-  </LocaleResource>  
+  </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.CurrentUserTime">
     <Value>Current user time</Value>
   </LocaleResource>
@@ -14048,7 +14069,7 @@
   </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.RedisEnabled">
     <Value>Redis enabled</Value>
-  </LocaleResource>  
+  </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.RedisEnabled.Hint">
     <Value>Indicates whether Redis is enabled.</Value>
   </LocaleResource>
@@ -14069,13 +14090,13 @@
   </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.UseRedisForCaching.Hint">
     <Value>Indicates whether Redis is used for Caching.</Value>
-  </LocaleResource>  
+  </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.UseRedisToStoreDataProtectionKeys">
     <Value>Use Redis to store Data Protection Keys</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.UseRedisToStoreDataProtectionKeys.Hint">
     <Value>Indicates whether Redis is used to store Data Protection Keys.</Value>
-  </LocaleResource>    
+  </LocaleResource>
   <LocaleResource Name="Admin.System.SystemInfo.UseRedisToStorePluginsInfo">
     <Value>Use Redis to store Plugins Info</Value>
   </LocaleResource>
@@ -17702,7 +17723,7 @@
   </LocaleResource>
   <LocaleResource Name="ShoppingCart.DiscountCouponCode.Empty">
     <Value>The coupon code is empty</Value>
- </LocaleResource>
+  </LocaleResource>
   <LocaleResource Name="ShoppingCart.DiscountCouponCode.Invalid">
     <Value>This coupon code ({0}) is invalid or no longer available.</Value>
   </LocaleResource>
@@ -18014,7 +18035,7 @@
   </LocaleResource>
   <LocaleResource Name="Tax.Selector.Label">
     <Value>Tax selector</Value>
-  </LocaleResource>    
+  </LocaleResource>
   <LocaleResource Name="Tax.SelectType">
     <Value>Tax display type</Value>
   </LocaleResource>

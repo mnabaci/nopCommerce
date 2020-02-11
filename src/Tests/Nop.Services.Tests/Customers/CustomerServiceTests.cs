@@ -19,6 +19,14 @@ namespace Nop.Services.Tests.Customers
         private readonly IRepository<CustomerCustomerRoleMapping> _customerCustomerRoleMapping;
         private readonly IRepository<Address> _customerAddressRepo;
 
+        private readonly CustomerRole _customerRoleSuperAdmin = new CustomerRole
+        {
+            Id = 1,
+            Active = true,
+            Name = "SuperAdministrators",
+            SystemName = NopCustomerDefaults.SuperAdministratorsRoleName
+        };
+
         private readonly CustomerRole _customerRoleAdmin = new CustomerRole
         {
             Id = 1,
@@ -107,6 +115,7 @@ namespace Nop.Services.Tests.Customers
         {
             return new List<CustomerRole>
             {
+                _customerRoleSuperAdmin,
                 _customerRoleAdmin,
                 _customerRoleGuests,
                 _customerRoleRegistered,
@@ -137,6 +146,26 @@ namespace Nop.Services.Tests.Customers
 
             _customerService.IsInCustomerRole(customer, "Test system name 3", false).Should().BeFalse();
             _customerService.IsInCustomerRole(customer, "Test system name 3").Should().BeFalse();
+
+            _customerCustomerRoleMapping.Delete(rm);
+        }
+
+        [Test]
+        public void Can_check_whether_customer_is_super_admin()
+        {
+            var customer = new Customer { Id = 1 };
+
+            var rm = new List<CustomerCustomerRoleMapping>
+            {
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleRegistered.Id, CustomerId = customer.Id },
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleGuests.Id, CustomerId = customer.Id },
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleAdmin.Id, CustomerId = customer.Id },
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleSuperAdmin.Id, CustomerId = customer.Id }
+            };
+
+            _customerCustomerRoleMapping.Insert(rm);
+
+            _customerService.IsSuperAdmin(customer).Should().BeTrue();
 
             _customerCustomerRoleMapping.Delete(rm);
         }
@@ -193,7 +222,8 @@ namespace Nop.Services.Tests.Customers
             var rm = new List<CustomerCustomerRoleMapping>
             {
                 new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleRegistered.Id, CustomerId = customer.Id },
-                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleAdmin.Id, CustomerId = customer.Id }
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleAdmin.Id, CustomerId = customer.Id },
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleSuperAdmin.Id, CustomerId = customer.Id }
             };
 
             _customerCustomerRoleMapping.Insert(rm);
@@ -218,7 +248,8 @@ namespace Nop.Services.Tests.Customers
             var rm = new List<CustomerCustomerRoleMapping>
             {
                 new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleGuests.Id, CustomerId = customer.Id },
-                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleAdmin.Id, CustomerId = customer.Id }
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleAdmin.Id, CustomerId = customer.Id },
+                new CustomerCustomerRoleMapping { CustomerRoleId = _customerRoleSuperAdmin.Id, CustomerId = customer.Id }
             };
 
             _customerCustomerRoleMapping.Insert(rm);

@@ -8,6 +8,11 @@
         #region System customer roles
 
         /// <summary>
+        /// Gets a system name of 'super administrators' customer role
+        /// </summary>
+        public static string SuperAdministratorsRoleName => "SuperAdministrators";
+
+        /// <summary>
         /// Gets a system name of 'administrators' customer role
         /// </summary>
         public static string AdministratorsRoleName => "Administrators";
